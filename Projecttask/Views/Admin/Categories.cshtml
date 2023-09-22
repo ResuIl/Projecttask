@@ -1,0 +1,35 @@
+﻿@* @model List<Projecttask.Models.Categorie>;
+
+@if (Model.Count == 0)
+{
+    <p>No Categories Available.</p>
+    <a class="btn btn-danger" href="@Url.Action("AddCategorie", "Admin")">Add Categorie</a>
+}
+else
+{
+    <a class="btn btn-danger" href="@Url.Action("AddCategorie", "Admin")">Add Categorie</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>
+                        <a class="btn btn-outline-info" href="@Url.Action("Edit", "Admin", new { Id = category.Id })">Edit</a>
+                        <form action="@Url.Action("Delete", "Admin", new { Id = category.Id })" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="_method" value="POST" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} *@

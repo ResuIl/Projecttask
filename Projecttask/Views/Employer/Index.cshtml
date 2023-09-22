@@ -1,0 +1,99 @@
+﻿@model List<Projecttask.Models.ViewModels.UserWithTagViewModel>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<input type="hidden" id="userId" />
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Enter Price and Message</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="price">Price:</label>
+						<input type="text" class="form-control" id="price">
+					</div>
+					<div class="form-group">
+						<label for="message">Message:</label>
+						<textarea class="form-control" id="message" rows="4"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" onclick="saveData()">Send</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+	<div class="row">
+		@foreach(var user in Model)
+		{
+			<div class="col-12 col-sm-6 col-lg-4 mb-4">
+				<div class="card p-3 py-4 rounded">
+					<div class="text-center">
+						<img src="@user.User.ProfilePhoto" width="100" class="rounded-circle">
+						<h3 class="mt-2">@user.User.UserName</h3>
+						<span class="mt-1 d-block">@user.User.City</span>
+
+						<div class="row mt-3">
+							<div class="col-4">
+								<h5>Projects</h5>
+								<span class="num">10</span>
+							</div>
+							<div class="col-4">
+								<h5>Projects</h5>
+								<span class="num">10</span>
+							</div>
+							<div class="col-4">
+								<h5>Projects</h5>
+								<span class="num">10</span>
+							</div>
+						</div>
+
+						<hr class="line">
+
+						<p class="mt-4" style="max-height: 150px!important; text-overflow: ellipsis; overflow: hidden;">@user.User.About</p>
+
+						@foreach (var tag in user.Tags)
+						{
+							<span class="badge badge-primary bg-danger">@tag.Name</span>
+						}
+
+						<div class="profile mt-4">
+							@* <a href="@Url.Action("Profile", "Employer", new { userid = user.User.Id })" class="btn profile_button px-4 btn-primary">Make An Offer</a> *@
+							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="openModal('@user.User.Id')">
+								Open Modal
+							</button>
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		}
+	</div>
+</div>
+
+
+
+<script>
+	function openModal(userId) {
+		document.getElementById("userId").value = userId;
+	}
+
+	function saveData() {
+
+		var price = document.getElementById("price").value;
+		var message = document.getElementById("message").value;
+		var userId = document.getElementById("userId").value;
+		console.log(price, message, userId);
+	
+		$('#myModal').modal('hide');
+	}
+</script>
