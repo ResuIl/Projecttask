@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Projecttask.Data;
 
@@ -11,9 +12,11 @@ using Projecttask.Data;
 namespace Projecttask.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231001104632_updateOrders")]
+    partial class updateOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,14 +219,8 @@ namespace Projecttask.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int>("deletedOfferCount")
-                        .HasColumnType("int");
-
                     b.Property<bool?>("isEditing")
                         .HasColumnType("bit");
-
-                    b.Property<int>("sentOfferCount")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -246,26 +243,22 @@ namespace Projecttask.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("EmployerId")
+                    b.Property<string>("Employer")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("OfferPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("OfferPrice")
+                        .HasColumnType("int");
 
-                    b.Property<string>("WorkerId")
+                    b.Property<string>("Worker")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployerId");
-
-                    b.HasIndex("WorkerId");
 
                     b.ToTable("Orders");
                 });
@@ -360,25 +353,6 @@ namespace Projecttask.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Projecttask.Models.Orders", b =>
-                {
-                    b.HasOne("Projecttask.Models.ApplicationUser", "Employer")
-                        .WithMany()
-                        .HasForeignKey("EmployerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Projecttask.Models.ApplicationUser", "Worker")
-                        .WithMany()
-                        .HasForeignKey("WorkerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Employer");
-
-                    b.Navigation("Worker");
                 });
 
             modelBuilder.Entity("Projecttask.Models.UserTag", b =>

@@ -26,8 +26,8 @@ public class WorkerController : Controller
     public async Task<IActionResult> Index()
     {
         ApplicationUser getUser = await _userManager.GetUserAsync(User);
-        var orders = _context.Orders.Where(order => order.Worker.Id == getUser.Id).ToList();
-        return View(orders);
+        var orders = _context.Orders.Where(o => o.WorkerId == getUser.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View(orders);
     }
 
     public async Task<IActionResult> Profile()
@@ -36,6 +36,8 @@ public class WorkerController : Controller
         ViewData["Username"] = getUser;
         ViewData["City"] = getUser.City;
         ViewData["isEditing"] = getUser.isEditing;
+        ViewData["sentOfferCount"] = getUser.sentOfferCount;
+        ViewData["deletedOfferCount"] = getUser.deletedOfferCount;
         ViewData["Tags"] = _context.UserTag.Include(ut => ut.Tag).Where(ut => ut.UserId == getUser.Id).Select(ut => ut.Tag).ToList();
         ViewData["DefaultTags"] = _context.Tag.ToList();
         ViewData["About"] = getUser.About;
@@ -91,7 +93,38 @@ public class WorkerController : Controller
         return Json(new { isEditing = false }) ;
     }
 
-    [HttpPost]
+    public async Task<IActionResult> DeleteOffer(int offerId)
+    {
+		var order = await _context.Orders.FindAsync(offerId);
+
+		if (order == null)
+		{
+			return NotFound("Order not found.");
+		}
+
+		var user = await _userManager.GetUserAsync(User);
+		if (user == null)
+		{
+			return Unauthorized("User not found.");
+		}
+
+		if (order.EmployerId != user.Id && order.WorkerId != user.Id)
+		{
+			return Forbid("User is not authorized to delete this order.");
+		}
+
+		_context.Orders.Remove(order);
+		await _context.SaveChangesAsync();
+
+        user.deletedOfferCount += 1;
+
+        await _userManager.UpdateAsync(user);
+
+        var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View("Index", orders);
+    }
+
+	[HttpPost]
     public async Task<IActionResult> AddTag([FromBody] TagRequestViewModel request)
     {
         ApplicationUser user = await _userManager.GetUserAsync(User);

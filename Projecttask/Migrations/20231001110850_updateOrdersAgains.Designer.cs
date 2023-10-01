@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Projecttask.Data;
 
@@ -11,9 +12,11 @@ using Projecttask.Data;
 namespace Projecttask.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231001110850_updateOrdersAgains")]
+    partial class updateOrdersAgains
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,14 +219,8 @@ namespace Projecttask.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int>("deletedOfferCount")
-                        .HasColumnType("int");
-
                     b.Property<bool?>("isEditing")
                         .HasColumnType("bit");
-
-                    b.Property<int>("sentOfferCount")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

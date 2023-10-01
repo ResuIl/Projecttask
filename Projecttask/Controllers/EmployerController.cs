@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Projecttask.Data;
 using Projecttask.Models;
 using Projecttask.Models.ViewModels;
@@ -59,4 +60,34 @@ public class EmployerController : Controller
 			
         return View(user);
 	}
+
+	[HttpPost]
+	public async Task<IActionResult> MakeOffer([FromBody] Orders order)
+	{
+		var user = await _userManager.GetUserAsync(User);
+		var worker = await _context.Users.FindAsync(order.WorkerId);
+		if (user == null || worker == null)
+		{
+			return Unauthorized("User not found.");
+		}
+
+		if (!await _userManager.IsInRoleAsync(user, "Employer"))
+		{
+			return Forbid("User is not authorized to create an order.");
+		}
+
+		worker.sentOfferCount += 1;
+
+        await _userManager.UpdateAsync(worker);
+
+
+        order.EmployerId = user.Id;
+
+		_context.Orders.Add(order);
+		await _context.SaveChangesAsync();
+
+		return Ok("Succesfully Offer Created.");
+	}
+
+
 }

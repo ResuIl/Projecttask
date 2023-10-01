@@ -20,5 +20,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-    }
+
+		builder.Entity<Orders>()
+			.HasOne(o => o.Employer)
+			.WithMany()
+			.HasForeignKey(o => o.EmployerId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+		builder.Entity<Orders>()
+			.HasOne(o => o.Worker)
+			.WithMany()
+			.HasForeignKey(o => o.WorkerId)
+			.OnDelete(DeleteBehavior.Restrict);
+	}
 }
