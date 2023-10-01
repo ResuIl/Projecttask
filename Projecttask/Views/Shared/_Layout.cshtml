@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Projecttask.Models;
 @inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,14 +55,17 @@
                                 <a class="nav-link text-dark" href="@Url.Action("Profile", "Worker")">Profile</a>
                             </li>                         
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
                         
                         @if (roles is not null && roles.Contains("Admin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="@Url.Action("Categories", "Admin")">Categories</a>
+                            </li>
+                        }
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item float-right">
+                                <a class="nav-link text-danger" href="@Url.Action("Logout", "Account")">Sign Out</a>
                             </li>
                         }
                     </ul>

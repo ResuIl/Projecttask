@@ -1,8 +1,4 @@
-﻿@{
-    var isEditing = false;
-}
-
-<section class="h-100 gradient-custom-2">
+﻿<section class="h-100 gradient-custom-2">
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-lg-9 col-xl-7">
@@ -80,15 +76,18 @@
                                     @{
                                         var tag = ViewData["Tags"] as List<Projecttask.Models.Tag>;
 
-                                        @foreach (var defaulTag in ViewData["DefaultTags"] as List<Projecttask.Models.Tag>)
+                                        if (tag != null)
                                         {
-                                            if (tag.Where(tag => tag.Name == defaulTag.Name).Count() > 0)
+                                            @foreach (var defaulTag in ViewData["DefaultTags"] as List<Projecttask.Models.Tag>)
                                             {
-                                                <span onclick="RemoveTag('@defaulTag.Name')" class="badge badge-primary bg-danger" style="cursor: pointer;">@defaulTag.Name</span>
-                                            }
-                                            else
-                                            {
-                                                <span onclick="AddTag('@defaulTag.Name')" class="badge badge-primary bg-dark" style="cursor: pointer;">@defaulTag.Name</span>
+                                                if (tag.Where(tag => tag.Name == defaulTag.Name).Count() > 0)
+                                                {
+                                                    <span onclick="RemoveTag('@defaulTag.Name')" class="badge badge-primary bg-danger" style="cursor: pointer;">@defaulTag.Name</span>
+                                                }
+                                                else
+                                                {
+                                                    <span onclick="AddTag('@defaulTag.Name')" class="badge badge-primary bg-dark" style="cursor: pointer;">@defaulTag.Name</span>
+                                                }
                                             }
                                         }
                                     }

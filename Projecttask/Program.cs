@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Projecttask.Data;
 using Projecttask.Models;
+using Projecttask.Services.Handlers;
+using Projecttask.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
     options.SignIn.RequireConfirmedEmail = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(op => op.TokenLifespan = TimeSpan.FromHours(10));
+
+var mailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<MailConfiguration>();
+builder.Services.AddSingleton(mailConfig);
+builder.Services.AddScoped<IMailService, MailService>();
 
 //var serviceProvider = builder.Services.BuildServiceProvider();
 //var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -92,6 +100,7 @@ app.UseEndpoints(endpoints =>
 
 });
 
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.MapRazorPages();
 
 app.Run();
