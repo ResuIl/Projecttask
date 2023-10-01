@@ -8,6 +8,8 @@ using Projecttask.Models;
 using Projecttask.Models.ViewModels;
 using Azure.Core;
 using Projecttask.Migrations;
+using Serilog;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Projecttask.Controllers;
 
@@ -87,6 +89,7 @@ public class WorkerController : Controller
                 _context.Entry(dbUser).State = EntityState.Modified;
                 _context.SaveChanges();
                 SetProfileViewData(dbUser);
+                Log.Information($"User Edited Profile. Email: {getUser.Email}");
                 return Json(new { isEditing = !dbUser.isEditing });
             }
         }
@@ -119,7 +122,7 @@ public class WorkerController : Controller
         user.deletedOfferCount += 1;
 
         await _userManager.UpdateAsync(user);
-
+        Log.Information($"User Deleted Offer. EmployerID: {order.EmployerId} Message: {order.Message} Price: {order.OfferPrice}");
         var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
 		return View("Index", orders);
     }

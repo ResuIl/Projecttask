@@ -59,7 +59,7 @@
                         @if (roles is not null && roles.Contains("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="@Url.Action("Categories", "Admin")">Categories</a>
+                                <a class="nav-link text-dark" href="/admin">Admin</a>
                             </li>
                         }
                         @if (SignInManager.IsSignedIn(User))

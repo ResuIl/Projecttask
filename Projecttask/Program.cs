@@ -4,13 +4,26 @@ using Projecttask.Data;
 using Projecttask.Models;
 using Projecttask.Services.Handlers;
 using Projecttask.Services.Interfaces;
+using Serilog.Events;
+using Serilog;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var outputTemplate = "\"[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine} Environment:{Environment} ThreadId: {ThreadId} {Exception}\"";
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/myapp.txt")
+    .WriteTo.MSSqlServer(builder.Configuration.GetConnectionString("default"), "logs", autoCreateSqlTable: true)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("default")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking), ServiceLifetime.Transient);
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("default")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).EnableSensitiveDataLogging(), ServiceLifetime.Transient);
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -72,7 +85,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddCoreAdmin("Admin");
 
 var app = builder.Build();
 
@@ -92,6 +105,16 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
+    {
+        await context.Response.WriteAsync("Request Access Denied");
+    }
+});
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
@@ -102,5 +125,8 @@ app.UseEndpoints(endpoints =>
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.MapRazorPages();
+app.MapDefaultControllerRoute();
+app.UseCoreAdminCustomTitle("Resul Site Admin Panel");
+app.UseCoreAdminCustomUrl("admin");
 
 app.Run();

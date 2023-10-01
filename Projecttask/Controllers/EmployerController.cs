@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Projecttask.Data;
 using Projecttask.Models;
 using Projecttask.Models.ViewModels;
+using Serilog;
 
 namespace Projecttask.Controllers;
 
@@ -27,10 +28,7 @@ public class EmployerController : Controller
 
 		foreach (var worker in workers)
 		{
-			// Retrieve tags associated with the user (you may need to implement this method)
 			var tags = _context.UserTag.Where(ut => ut.UserId == worker.Id).Select(ut => ut.Tag).ToList();
-
-			// Create a UserWithTagViewModel and add it to the list
 			var userWithTagViewModel = new UserWithTagViewModel
 			{
 				User = worker,
@@ -47,7 +45,6 @@ public class EmployerController : Controller
 	{
 		if (string.IsNullOrEmpty(userid))
 		{
-			// Handle the case where userId is not provided or is invalid
 			return BadRequest("Invalid user ID");
 		}
 
@@ -85,8 +82,8 @@ public class EmployerController : Controller
 
 		_context.Orders.Add(order);
 		await _context.SaveChangesAsync();
-
-		return Ok("Succesfully Offer Created.");
+        Log.Information($"Succesfully Offer Created. EmployerID: {order.EmployerId} WorkerID: {order.WorkerId}");
+        return Ok("Succesfully Offer Created.");
 	}
 
 

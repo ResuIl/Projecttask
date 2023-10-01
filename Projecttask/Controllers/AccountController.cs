@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Projecttask.Models;
 using Projecttask.Models.ViewModels;
 using Projecttask.Services.Interfaces;
+using Serilog;
 
 namespace Projecttask.Controllers
 {
@@ -40,11 +41,12 @@ namespace Projecttask.Controllers
                         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { token, email = user.Email }, Request.Scheme);
                         var message = new Message(new string[] { user.Email }, "Confirm Email", confirmationLink!);
                         _mailService.SendEmail(message);
-
+                        Log.Information($"User Registered! Username: {model.UserName} Password: {model.Password} Email: {model.Email}");
                         return View("SuccessPage", new SuccessPageViewModel { Subject = "Succesfully Registered", Text = $"We send mail confirmation link to {user.Email}" });
                     }
                     foreach (var error in result.Errors)
                     {
+                        Log.Error(error.Description, "Something went wrong");
                         ModelState.AddModelError("", error.Description);
                     }
                 }
@@ -65,6 +67,7 @@ namespace Projecttask.Controllers
 
                 if (user == null)
                 {
+                    Log.Information($"Invalid email or password. Email: {model.Email} Password: {model.Password}");
                     ModelState.AddModelError(string.Empty, "Invalid email or password.");
                     return View(model);
                 }
@@ -77,6 +80,7 @@ namespace Projecttask.Controllers
 
                 if (result.Succeeded)
                 {
+                    Log.Information($"User Login! Username: {user.UserName} Password: {model.Password} Email: {model.Email}");
                     var roles = await _userManager.GetRolesAsync(user);
                     if (roles.Contains("Employer"))
                         return RedirectToAction("Index", "Employer");
@@ -95,12 +99,15 @@ namespace Projecttask.Controllers
                     }
                     else
                     {
+                        Log.Information($"Invalid email or password. Email: {model.Email} Password: {model.Password}");
                         ModelState.AddModelError(string.Empty, "Invalid email or password.");
                         return View(model);
                     }
 
                     if (!await _signInManager.UserManager.IsEmailConfirmedAsync(user))
                     {
+
+                        Log.Information($"User cannot sign in without a confirmed email. Email: {model.Email}");
                         ModelState.AddModelError(string.Empty, "User cannot sign in without a confirmed email.");
                         return View(model);
                     }
@@ -171,6 +178,7 @@ namespace Projecttask.Controllers
                 if (user != null)
                 {
                     var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                    Log.Information($"User Reseted Password. Email: {model.Email}");
                     if (result.Succeeded)
                         return View("SuccessPage", new SuccessPageViewModel { Subject = "Password Reseted", Text = "You can login." });
                     else
