@@ -1,4 +1,4 @@
-﻿@model List<Projecttask.Models.ViewModels.UserWithTagViewModel>
+﻿@model Projecttask.Models.ViewModels.AllTagsAndUsersViewModel
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
@@ -33,9 +33,21 @@
 <div class="container-fluid">
 	<div class="row">
 		@{
-			if (Model.Count > 0)
+			if (Model.Users.Count > 0)
 			{
-				foreach (var user in Model)
+				<div class="col-12">
+					<div class="mb-3">
+						<h5>Filter by Tags:</h5>
+						@foreach (var tag in Model.Tags)
+						{
+
+							<label class="checkbox-inline">
+								<input type="checkbox" class="tag-filter" data-tag="@tag.Name"> @tag.Name
+							</label>
+						}
+					</div>
+				</div>
+				foreach (var user in Model.Users)
 				{
 							<div class="col-12 col-sm-6 col-lg-4 mb-4">
 								<div class="card p-3 py-4 rounded">
@@ -91,6 +103,30 @@
 
 
 <script>
+
+	$(".tag-filter").change(function () {
+		filterProfiles();
+	});
+
+	function filterProfiles() {
+		var selectedTags = [];
+		$(".tag-filter:checked").each(function () {
+			selectedTags.push($(this).data("tag"));
+		});
+
+		$(".card").each(function () {
+			var profileTags = $(this).find(".badge").map(function () {
+				return $(this).text();
+			}).get();
+
+			if (selectedTags.length === 0 || selectedTags.some(tag => profileTags.includes(tag))) {
+				$(this).show();
+			} else {
+				$(this).hide();
+			}
+		});
+	}
+
 	function openModal(userId) {
 		document.getElementById("userId").value = userId;
 	}

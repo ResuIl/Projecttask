@@ -24,6 +24,7 @@ public class EmployerController : Controller
     public async Task<IActionResult> Index()
     {
         var workers = await _userManager.GetUsersInRoleAsync("Worker");
+		var allTags = new List<Tag>();
 		var usersWithTags = new List<UserWithTagViewModel>();
 
 		foreach (var worker in workers)
@@ -36,9 +37,12 @@ public class EmployerController : Controller
 			};
 
 			usersWithTags.Add(userWithTagViewModel);
+			allTags.AddRange(tags);
 		}
 
-		return View(usersWithTags);
+		AllTagsAndUsersViewModel data = new AllTagsAndUsersViewModel() { Tags = allTags, Users = usersWithTags };
+
+		return View(data);
     }
 
 	public async Task<IActionResult> Profile(string? userid)
