@@ -1,0 +1,69 @@
+﻿<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Users</h6>
+            <a href="">Show All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                        <th scope="col">UserName</th>
+                        <th scope="col">Gmail</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Tags</th>
+                        <th scope="col">Email Confirmed</th>
+                        <th scope="col">Block</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var users in ViewBag.Users)
+                    {
+                        <tr>
+                            <td><input class="form-check-input" type="checkbox"></td>
+                            <td>@users.User.UserName</td>
+                            <td>@users.User.Email</td>
+                            <td>
+                                @foreach (var role in users.Roles)
+                                {
+                                    <span class="badge badge-danger bg-success">@role</span>
+                                }
+                            </td>
+                            <td>
+                                @foreach (var tag in users.Tags)
+                                {
+                                    <span class="badge badge-danger bg-danger">@tag.Name</span>
+                                }
+                            </td>
+                            <td>
+                                @if (users.User.EmailConfirmed)
+                                {
+                                    <a class="btn btn-success rounded-pill m-2" href="">Email Confirmed</a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-danger rounded-pill m-2" href="">Email Not Confirmed</a>
+                                }
+                            </td>
+                            <td>
+                                @if (users.User.LockoutEnabled)
+                                {
+                                    <a type="button" class="btn btn-danger m-2" href="@Url.Action("LockUser", "Admin", new { area = "Admin", id = users.User.Id })">Lock</a>
+                                }
+                                else
+                                {
+                                    <a type="button" class="btn btn-success m-2" href="@Url.Action("UnlockUser", "Admin", new { area = "Admin", id = users.User.Id })">Unlock</a>
+                                }
+                            </td>
+                            <td>
+                                <a type="button" class="btn btn-danger m-2" href="@Url.Action("DeleteUser", "Admin", new { area = "Admin", id = users.User.Id })">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

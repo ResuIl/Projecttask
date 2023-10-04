@@ -85,7 +85,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddCoreAdmin("Admin");
 
 var app = builder.Build();
 
@@ -117,7 +116,11 @@ app.Use(async (context, next) =>
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllerRoute(
+	endpoints.MapAreaControllerRoute(
+		name: "ForeAdminarea",
+		areaName: "Admin",
+		pattern: "admin/{controller=Admin}/{action=Index}");
+	endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Employer}/{action=Index}");
 
@@ -126,7 +129,5 @@ app.UseEndpoints(endpoints =>
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.MapRazorPages();
 app.MapDefaultControllerRoute();
-app.UseCoreAdminCustomTitle("Resul Site Admin Panel");
-app.UseCoreAdminCustomUrl("admin");
 
 app.Run();

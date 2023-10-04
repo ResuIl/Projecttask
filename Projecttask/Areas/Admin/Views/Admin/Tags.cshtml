@@ -1,0 +1,50 @@
+﻿@model Projecttask.Models.ViewModels.AddCategoryViewModel
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <form asp-area="Admin" asp-controller="Admin" asp-action="tags" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="exampleInputEmail1" class="form-label">Tag Name</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" name="TagName" asp-for="TagName">
+                    </div>
+                    <button type="submit" class="btn btn-success m-2">Add Tag</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Recent Salse</h6>
+            <a href="">Show All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                        <th scope="col">Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     @foreach (var tag in ViewBag.Tags)
+                    {
+                        <tr>
+                            <td><input class="form-check-input" type="checkbox"></td>
+                            <td>@tag.Id</td>
+                            <td>@tag.Name</td>
+                            <td><a class="btn btn-danger rounded-pill m-2" href="@Url.Action("DeleteTag","Admin",new { area = "Admin" , id= tag.Id })">Delete</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
