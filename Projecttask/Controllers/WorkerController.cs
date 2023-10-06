@@ -127,6 +127,62 @@ public class WorkerController : Controller
 		return View("Index", orders);
     }
 
+	public async Task<IActionResult> AcceptOffer(int offerId)
+	{
+		var order = await _context.Orders.FindAsync(offerId);
+
+		if (order == null)
+		{
+			return NotFound("Order not found.");
+		}
+
+		var user = await _userManager.GetUserAsync(User);
+		if (user == null)
+		{
+			return Unauthorized("User not found.");
+		}
+
+		if (order.EmployerId != user.Id && order.WorkerId != user.Id)
+		{
+			return Forbid("User is not authorized.");
+		}
+
+        order.isJobAccepted = true;
+		_context.Entry(order).State = EntityState.Modified;
+		await _context.SaveChangesAsync();
+
+		var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View("Index", orders);
+	}
+
+	public async Task<IActionResult> FinishJob(int offerId)
+	{
+		var order = await _context.Orders.FindAsync(offerId);
+
+		if (order == null)
+		{
+			return NotFound("Order not found.");
+		}
+
+		var user = await _userManager.GetUserAsync(User);
+		if (user == null)
+		{
+			return Unauthorized("User not found.");
+		}
+
+		if (order.EmployerId != user.Id && order.WorkerId != user.Id)
+		{
+			return Forbid("User is not authorized.");
+		}
+
+		order.isJobFinished = true;
+		_context.Entry(order).State = EntityState.Modified;
+		await _context.SaveChangesAsync();
+
+		var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View("Index", orders);
+	}
+
 	[HttpPost]
     public async Task<IActionResult> AddTag([FromBody] TagRequestViewModel request)
     {
@@ -155,11 +211,37 @@ public class WorkerController : Controller
         _context.UserTag.Add(newUserTag);
         await _context.SaveChangesAsync();
 
-        return Ok("Tag added to the user.");
+		var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View("Index", orders);
 
-    }
+	}
 
-    [HttpPost]
+	[HttpPost]
+	public async Task<IActionResult> SentRate([FromBody] SentRateViewModel request)
+	{
+		ApplicationUser user = await _userManager.GetUserAsync(User);
+		var order = _context.Orders.FirstOrDefault(order => order.Id == request.OfferId);
+
+		if (user == null || order == null)
+		{
+			return NotFound();
+		}
+
+		if (order.EmployerId != user.Id && order.WorkerId != user.Id)
+		{
+			return Forbid("User is not authorized.");
+		}
+
+        order.isJobRated = true;
+		order.rating = request.Rate;
+		_context.Entry(order).State = EntityState.Modified;
+		await _context.SaveChangesAsync();
+		var orders = _context.Orders.Where(o => o.WorkerId == user.Id).Include(o => o.Employer).Include(o => o.Worker).ToList();
+		return View("Index", orders);
+
+	}
+
+	[HttpPost]
     public async Task<IActionResult> RemoveTag([FromBody] TagRequestViewModel request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.TagName))

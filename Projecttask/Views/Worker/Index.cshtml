@@ -1,5 +1,66 @@
 ﻿@model List<Projecttask.Models.Orders>
 
+<style>
+	fieldset, label { margin: 0; padding: 0; }
+	h1 { font-size: 1.5em; margin: 10px; }
+
+	.rating {
+		border: none;
+	}
+
+	fieldset.rating {
+		border: none;
+		display: flex; 
+		justify-content: center;
+		align-items: center;
+		margin: 0 auto;
+		max-width: 300px;
+	}
+
+
+	.rating > div > input {
+			display: none;
+		}
+
+	.rating > div > label:before {
+			margin: 5px;
+			font-size: 1.25em;
+			font-family: FontAwesome;
+			display: inline-block;
+			content: "\f005";
+		}
+
+	.rating > div > .half:before {
+			content: "\f089";
+			position: absolute;
+		}
+
+		.rating > div > label {
+			color: #ddd;
+			float: right!important;
+		}
+	.rating > div > input:checked ~ label, 
+	.rating:not(:checked) >  div > label:hover,
+	.rating:not(:checked) >  div > label:hover ~ label {
+		color: #FFD700;
+		order: 2;
+	}
+
+		/* hover previous stars in the list */
+		.rating >  div > input:checked + label:hover,
+		.rating >  div > input:checked ~ label:hover,
+		.rating >  div > label:hover ~ input:checked ~ label, 
+		.rating >  div > input:checked ~ label:hover ~ label {
+			color: #FFED85;
+			order: 2;
+		}
+	.rating > div > label {
+		order: 1;
+	}
+
+
+</style>
+
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -26,12 +87,14 @@
 			{
 				foreach (var offers in Model)
 				{
+					<span style="display: none;" id="offerId">@offers.Id</span>
 					<div class="col-12 col-sm-6 col-lg-4 mb-4">
 						<div class="card p-3 py-4 rounded">
 							<div class="text-center">
 								<img src="@offers.Employer.ProfilePhoto" width="100" class="rounded-circle">
 								<h3 class="mt-2">@offers.Employer.UserName</h3>
 								<span class="mt-1 d-block">@offers.Employer.City</span>
+								<span class="mt-1 d-block">@offers.Employer.Email</span>
 
 								<div class="row mt-3">
 									<div class="col-3">
@@ -47,13 +110,76 @@
 								</div>
 
 								<hr class="line">
-
 								<p class="mt-4" style="max-height: 150px!important; text-overflow: ellipsis; overflow: hidden;">@offers.Message</p>
+								@{
+									if(!offers.isJobAccepted)
+									{
+										<a class="btn btn-success contact-button" href="@Url.Action("AcceptOffer", "Worker", new { offerId = offers.Id })">Accept Offer</a>
+										<a class="btn btn-danger" href="@Url.Action("DeleteOffer", "Worker", new { offerId = offers.Id })">Delete</a>
+									} 
+									else if (!offers.isJobFinished)
+									{
+										<a class="btn btn-success contact-button" href="@Url.Action("FinishJob", "Worker", new { offerId = offers.Id })">Finish Job</a>
+									}
+									else if (!offers.isJobRated)
+									{
+										<fieldset class="rating">
+											<div>
+												<input type="radio" id="star5" name="rating" value="5"  />
+												<label class="full" for="star5" title="Awesome - 5 stars"></label>
 
-								<button type="button" class="btn btn-success contact-button" data-toggle="modal" data-target="#exampleModal" data-email="@offers.Employer.Email">
-									Contact
-								</button>
-								<a class="btn btn-danger" href="@Url.Action("DeleteOffer", "Worker", new { offerId = offers.Id })">Delete</a>
+												<input type="radio" id="star4" name="rating" value="4" />
+												<label class="full" for="star4" title="Pretty good - 4 stars"></label>
+
+												<input type="radio" id="star3" name="rating" value="3" />
+												<label class="full" for="star3" title="Meh - 3 stars"></label>
+
+												<input type="radio" id="star2" name="rating" value="2" />
+												<label class="full" for="star2" title="Kinda bad - 2 stars"></label>
+
+												<input type="radio" id="star1" name="rating" value="1" />
+												<label class="full" for="star1" title="Sucks big time - 1 star"></label>
+											</div>
+										</fieldset>
+									} else
+									{
+										<fieldset class="rating">
+											<div>
+												<input type="radio" id="star5" name="rating" value="5" @if (offers.rating == 5)
+												{
+													<text>checked</text>
+												} disabled />
+												<label class="full" for="star5" title="Awesome - 5 stars"></label>
+
+												<input type="radio" id="star4" name="rating" value="4" @if (offers.rating == 4)
+												{
+													<text>checked</text>
+												} disabled />
+												<label class="full" for="star4" title="Pretty good - 4 stars"></label>
+
+												<input type="radio" id="star3" name="rating" value="3" @if (offers.rating == 3)
+												{
+													<text>checked</text>
+												} disabled />
+												<label class="full" for="star3" title="Meh - 3 stars"></label>
+
+												<input type="radio" id="star2" name="rating" value="2" @if (offers.rating == 2)
+												{
+													<text>checked</text>
+												} disabled />
+												<label class="full" for="star2" title="Kinda bad - 2 stars"></label>
+
+												<input type="radio" id="star1" name="rating" value="1" @if (offers.rating == 1)
+												{
+													<text>checked</text>
+												} disabled />
+												<label class="full" for="star1" title="Sucks big time - 1 star"></label>
+											</div>
+										</fieldset>
+
+
+									}
+								}
 							</div>
 						</div>
 
@@ -73,6 +199,40 @@
 		$('.contact-button').click(function () {
 			var userEmail = $(this).data('email');
 			$('#userEmail').text(userEmail);
+		});
+
+		async function rate(_rate, _offerId) {
+			const response = await fetch("/Worker/SentRate", {
+				method: "POST",
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ Rate: _rate, OfferId: _offerId })
+			}).then(response => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+				Swal.fire(
+					'Rated!',
+					'Your rate succesfully saved.',
+					'success'
+				)
+				location.reload();
+			}).catch(error => {
+				Swal.fire({
+					icon: 'error',
+					title: 'Oops...',
+					text: 'Something went wrong!'
+				})
+				console.error("Error:", error);
+			})
+		}
+
+		$('[type*="radio"]').change(function () {
+			var me = $(this);
+			var offerId = document.getElementById("offerId").innerHTML;
+			rate(me.attr('value'), offerId)
 		});
 	});
 </script>
